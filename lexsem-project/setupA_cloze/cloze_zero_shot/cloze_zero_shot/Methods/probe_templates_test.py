@@ -1,3 +1,5 @@
+import os
+print("Working dir:", os.getcwd())
 import pandas as pd
 import json
 from transformers import pipeline
@@ -7,14 +9,14 @@ def get_article(word: str) -> str:
         return "a"
     return "an" if word[0].lower() in "aeiou" else "a"
 
-# 1. 读取验证集
+
 df = pd.read_csv("val.tsv", sep="\t", header=None, names=["n1", "n2", "label"])
 
-# 2. 加载模型
+
 print("Loading roberta-base fill-mask pipeline...")
 mlm = pipeline("fill-mask", model="roberta-base")
 
-# 3. 选两个最好的模板
+
 templates = {
     "T2_better": "{article_cap_n1} {n1} {n2} is {article_n2} {n2} that <mask> {n1}.",
     "T3_best": "{article_cap_n1} {n1} {n2} refers to {article_n2} {n2} that <mask> {n1}.",
