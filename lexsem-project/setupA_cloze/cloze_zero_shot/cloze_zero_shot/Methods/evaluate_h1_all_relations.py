@@ -235,7 +235,7 @@ with open(INPUT_FILE, "r", encoding="utf-8") as f:
         if label not in RELATION_KEYWORDS:
             continue
 
-        # "other" 暂不评估
+       
         if label == "other":
             continue
 
