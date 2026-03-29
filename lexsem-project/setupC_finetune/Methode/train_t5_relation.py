@@ -2,11 +2,11 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset, DataLoader
 from transformers import RobertaTokenizer, RobertaForSequenceClassification, get_linear_schedule_with_warmup
-from tqdm import tqdm  # 导入进度条库
+from tqdm import tqdm  # Fortschrittsbalken-Bibliothek importieren
 import os
 
 
-# 1. 数据加载
+# 1. Daten laden
 def load_and_preprocess(file_path, label2id=None):
     df = pd.read_csv(file_path, sep='\t', header=None, names=['w1', 'w2', 'label'])
     df['text'] = df['w1'] + " " + df['w2']
@@ -15,7 +15,7 @@ def load_and_preprocess(file_path, label2id=None):
     return df
 
 
-# 初始化标签映射
+# Initialisierung der Label-Zuordnung
 train_raw = pd.read_csv('train.tsv', sep='\t', header=None, names=['w1', 'w2', 'label'])
 unique_labels = sorted(train_raw['label'].unique().tolist())
 label2id = {label: i for i, label in enumerate(unique_labels)}
@@ -43,22 +43,22 @@ class RelationDataset(Dataset):
         return data
 
 
-# 3. 训练主程序
+# 3. Hauptprogramm für das Training
 def main():
-    # --- 参数配置 ---
+    # --- Parameterkonfiguration ---
     MAX_LEN = 64
-    BATCH_SIZE = 16  # 4060 推荐值
+    BATCH_SIZE = 16  # empfohlener Wert für RTX 4060
     EPOCHS = 10
     LEARNING_RATE = 1e-5
     MODEL_NAME = 'roberta-large'
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     print(f"\n{'=' * 30}")
-    print(f"运行设备: {DEVICE}")
+    print(f"Ausführungsgerät: {DEVICE}")
     if torch.cuda.is_available():
-        print(f"显卡型号: {torch.cuda.get_device_name(0)}")
+        print(f"GPU-Modell: {torch.cuda.get_device_name(0)}")
     else:
-        print("警告: 未检测到 GPU，当前正在使用 CPU 运行，速度会很慢！")
+        print("Warnung: Keine GPU erkannt, es wird aktuell die CPU verwendet – die Ausführung wird sehr langsam sein!")
     print(f"{'=' * 30}\n")
 
     tokenizer = RobertaTokenizer.from_pretrained(MODEL_NAME)
@@ -74,12 +74,12 @@ def main():
     scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0,
                                                 num_training_steps=len(train_loader) * EPOCHS)
 
-    print("开始训练...")
+    print("Training wird gestartet...")
     for epoch in range(EPOCHS):
         model.train()
         total_loss = 0
 
-        # 添加进度条控制台输出
+        # Fortschrittsbalken für die Konsolenausgabe hinzufügen
         progress_bar = tqdm(train_loader, desc=f"Epoch {epoch + 1}/{EPOCHS}", unit="batch")
 
         for batch in progress_bar:
@@ -95,18 +95,18 @@ def main():
             scheduler.step()
 
             total_loss += loss.item()
-            # 在进度条右侧实时显示 Loss
+            # Loss wird rechts im Fortschrittsbalken in Echtzeit angezeigt
             progress_bar.set_postfix({'loss': f"{loss.item():.4f}"})
 
         avg_loss = total_loss / len(train_loader)
-        print(f"Epoch {epoch + 1} 完成，平均 Loss: {avg_loss:.4f}")
+        print(f"Epoch {epoch + 1} abgeschlossen, durchschnittlicher Loss: {avg_loss:.4f}")
 
-        # 每轮清理一次显存缓存
+        # GPU-Speicher nach jeder Epoche bereinigen
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
 
-    # 4. 预测阶段添加进度条
-    print("\n开始对测试集进行预测...")
+    # 4. Fortschrittsbalken auch für die Vorhersagephase
+    print("\nVorhersage für den Testdatensatz wird gestartet...")
     test_df = load_and_preprocess('test.tsv')
     test_ds = RelationDataset(test_df['text'].values, None, tokenizer, MAX_LEN)
     test_loader = DataLoader(test_ds, batch_size=BATCH_SIZE)
@@ -125,7 +125,7 @@ def main():
     test_df['predicted_label'] = all_preds
     test_df[['w1', 'w2', 'predicted_label']].to_csv('submission.tsv', sep='\t', index=False, header=False)
     print(f"\n{'=' * 30}")
-    print("任务完成！预测结果已存入 submission.tsv")
+    print("Aufgabe abgeschlossen! Die Vorhersagen wurden in submission.tsv gespeichert.")
     print(f"{'=' * 30}")
 
 
