@@ -1,12 +1,12 @@
+import os
+print("Working dir:", os.getcwd())
 import json
 import csv
 from collections import defaultdict
 import pandas as pd
 from transformers import pipeline
 
-# =========================================================
-# 1. 配置
-# =========================================================
+
 INPUT_TSV = "test.tsv"
 PREDICTIONS_JSONL = "cloze_test_predictions.jsonl"
 RESULTS_CSV = "h1_test_final_results.csv"
@@ -17,9 +17,7 @@ TEMPLATE = "{article_cap_n1} {n1} {n2} refers to {article_n2} {n2} that <mask> {
 
 TOP_K = 5
 
-# =========================================================
-# 2. 关键词集合（优化版）
-# =========================================================
+
 RELATION_KEYWORDS = {
     "owner_emp_use": {
         "command", "commands", "commanded", "commanding",
@@ -230,9 +228,7 @@ RELATION_KEYWORDS = {
     "other": set()
 }
 
-# =========================================================
-# 3. 工具函数
-# =========================================================
+
 def get_article(word: str) -> str:
     if not word:
         return "a"
@@ -243,20 +239,17 @@ def normalize_token(token: str) -> str:
     return token.strip().lower()
 
 
-# =========================================================
-# 4. 读取测试集
+
 # =========================================================
 df = pd.read_csv(INPUT_TSV, sep="\t", header=None, names=["n1", "n2", "label"])
 print(f"Loaded test set: {len(df)} samples")
 
-# =========================================================
-# 5. 加载模型
+
 # =========================================================
 print(f"Loading model: {MODEL_NAME}")
 mlm = pipeline("fill-mask", model=MODEL_NAME)
 
-# =========================================================
-# 6. 跑 test.tsv 并保存预测
+
 # =========================================================
 all_predictions = []
 
@@ -308,8 +301,7 @@ with open(PREDICTIONS_JSONL, "w", encoding="utf-8") as f:
 
 print(f"Saved predictions to: {PREDICTIONS_JSONL}")
 
-# =========================================================
-# 7. 评估
+
 # =========================================================
 stats = defaultdict(lambda: {"total": 0, "top1_hit": 0, "top5_hit": 0})
 failed_examples = defaultdict(list)
@@ -320,7 +312,7 @@ for item in all_predictions:
     if label not in RELATION_KEYWORDS:
         continue
 
-    # other 暂不评估
+   
     if label == "other":
         continue
 
@@ -346,8 +338,7 @@ for item in all_predictions:
             "predictions": top5
         })
 
-# =========================================================
-# 8. 输出 relation 结果
+
 # =========================================================
 rows = []
 top1_sum = 0.0
@@ -379,8 +370,7 @@ for label, s in sorted(stats.items()):
     top5_sum += top5_acc
     relation_count += 1
 
-# =========================================================
-# 9. overall average
+
 # =========================================================
 avg_top1 = top1_sum / relation_count if relation_count else 0.0
 avg_top5 = top5_sum / relation_count if relation_count else 0.0
@@ -400,8 +390,7 @@ rows.append({
     "top5_acc": round(avg_top5, 4),
 })
 
-# =========================================================
-# 10. 保存 CSV
+
 # =========================================================
 with open(RESULTS_CSV, "w", newline="", encoding="utf-8") as f:
     writer = csv.DictWriter(
@@ -413,8 +402,7 @@ with open(RESULTS_CSV, "w", newline="", encoding="utf-8") as f:
 
 print(f"\nSaved final results to: {RESULTS_CSV}")
 
-# =========================================================
-# 11. 打印一些失败例子
+
 # =========================================================
 print("\n" + "=" * 95)
 print("SOME FAILED EXAMPLES")
