@@ -1,7 +1,8 @@
 import json
 import csv
 from collections import defaultdict
-
+import os
+print("Working dir:", os.getcwd())
 INPUT_FILE = "cloze_val_predictions.jsonl"
 OUTPUT_CSV = "h1_full_relation_results_optimized.csv"
 
