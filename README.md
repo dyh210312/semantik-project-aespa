@@ -1,3 +1,36 @@
+# Compositional Reasoning or Lexical Prior?
+## Semantic Relation Classification in Noun Compounds
+
+This repository contains the implementation and experiments for our project:
+
+**"Compositional Reasoning or Lexical Prior? A Study on Semantic Relation Classification in Noun Compounds"**
+
+Authors: Yunhe Dong, Wenshuang Hu, Yuzhou Shi, Xiaoci Zhang  
+Course: Formale und Computationelle Semantik  
+University of Heidelberg  
+
+---
+
+## 📌 Overview
+
+Nominal compounds (e.g., *water bottle*, *bread knife*) encode implicit semantic relations between two nouns. This project investigates whether pretrained language models (PLMs) truly capture these compositional relations or rely on shallow lexical patterns.
+
+We study this problem through three complementary settings:
+
+- **H1: Cloze-based Zero-shot Probing**
+- **NLI Recasting (Zero-shot reasoning)**
+- **H2: Supervised Fine-tuning (Closed-world classification)**
+- **H3: Lexical Bias Analysis (Interpretability)**
+
+---
+
+## 🧪 Experimental Setup
+
+### 🔹 H1: Cloze-based Zero-shot Probing
+
+- Model: `RoBERTa-base`
+- Task: Predict masked token in prompts
+- Example:
 - Evaluation:
 - Top-1 Accuracy
 - Top-5 Accuracy
