@@ -1,4 +1,0 @@
-setting,total,correct,accuracy
-full,779,603,0.7741
-mask_head,779,491,0.6303
-mask_modifier,779,569,0.7304
