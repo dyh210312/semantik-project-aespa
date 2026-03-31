@@ -34,7 +34,7 @@ cm = confusion_matrix(y_true, y_pred, labels=labels)
 plt.figure(figsize=(12, 10))
 sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
             xticklabels=labels, yticklabels=labels)
-plt.title("H2: T5 Fine-tuning Confusion Matrix")
+plt.title("H2:  Fine-tuning Confusion Matrix")
 plt.xlabel("Predicted Relation")
 plt.ylabel("Gold Relation")
 plt.xticks(rotation=45)
